@@ -9,15 +9,6 @@ import group_info
 import requests
 import group_info_config
 
-# pip install facebook-scraper
-
-'''
-20240906 去掉一些不必要的表情符号
-20240419 增加发送抖音的数据
-20250122 加上一些过滤的表格符号
-20250315 改为 Teams 发送消息
-20250526 去掉 @
-'''
 
 # Skype 账号、密码、小组ID
 groupid = group_info_config.GROUP_ID
@@ -123,17 +114,6 @@ def send_info(title, sheet_name, ids, sheet_id, platform, send_type):
                 send_teams(id, skinfo)
     return ten_group[1]
 
-
-def dic_title():
-    """title"""
-    dic = {
-        "机器人报数": "5000人以下小组",
-        "机器人报数5000人以上": "5000人以上小组",
-        "主攻组报数": "主攻组",
-        "机器人报数10000人冲刺": "10000人冲刺",
-        "宗派小组报数": "宗派小组报数",
-    }
-    return dic
 
 
 def get_data(sheet_id, platform, send_type):
