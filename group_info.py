@@ -37,12 +37,12 @@ service = build("sheets", "v4", credentials=creds)
 sheet = service.spreadsheets()
 
 
-
 sqlilt_db = os.path.join(os.path.dirname(__file__), "sqlite3", "infos.db")
 
 tday = datetime.now()  # 当前时间
 # tday_ = tday.strftime("%Y-%m-%d %H:%M:%S")  # 当前日期时间
 tday__ = tday.strftime("%Y-%m-%d")  # 当前日期时间
+
 
 def time_now(timezone):
     """获取当前日期"""
@@ -111,6 +111,7 @@ def gspread_clint():
     client = gspread.authorize(creds)
     return client
 
+
 def list_sheet(sheet_key):
     client = gspread_clint()
     try:
@@ -119,10 +120,12 @@ def list_sheet(sheet_key):
     except gspread.exceptions.WorksheetNotFound:
         return None
 
+
 def get_id_name(id) -> dict:
     sheet_names = list_sheet(id)
-    id_name_dic = {item.title : item.id for item in sheet_names}
+    id_name_dic = {item.title: item.id for item in sheet_names}
     return id_name_dic
+
 
 def get_data(sheet_name, sheet_range, sheet_id):
     """获取表格数据sheet_name, sheet_range, sheet_id"""
@@ -151,9 +154,10 @@ def get_group_id(value, column=2):
         group_id.append(value.iat[row, column])
     return group_id
 
+
 def get_tk_posts(group_id):
-    '''获取抖音数据
-    粉丝、关注、好友、点赞'''
+    """获取抖音数据
+    粉丝、关注、好友、点赞"""
     count = 0
     result = getfb_posts.get_tiktok(group_id)
     while result[0] == None and count < 3:
@@ -176,6 +180,7 @@ def get_fb_posts(group_id):
         else:
             break
     return result[0], result[1]
+
 
 def getposts(group_ids):
     """获取小组当日帖子数和总帖子数,输出为列表"""
@@ -210,28 +215,25 @@ def upload_data(result, sheet_range, update_sheet_id):
         body=body,
     ).execute()
 
+
 def upload_data_batch(result, sheet_name, sheet_range, update_sheet_id):
     """批量上传数据"""
     client = gspread_clint()
     sheet = client.open_by_key(update_sheet_id).worksheet(sheet_name)
-    sheet.batch_update([
-        {
-            'range': sheet_range,
-            'values': result
-        }
-    ])
+    sheet.batch_update([{"range": sheet_range, "values": result}])
+
 
 def input_database(group_info, max_retries=5, base_delay=0.1):
     """将爬取的帖子写入数据库，带重试机制"""
-    
+
     for attempt in range(max_retries):
         try:
             conn = sqlite3.connect(sqlilt_db, timeout=30)  # 设置30秒超时
             c = conn.cursor()
-            
+
             # 开启WAL模式以提高并发性能
             c.execute("PRAGMA journal_mode=WAL")
-            
+
             c.execute(
                 """create table if not exists groups_info(
                     id INTEGER PRIMARY KEY, 
@@ -243,23 +245,25 @@ def input_database(group_info, max_retries=5, base_delay=0.1):
                     小组当日帖子数 INTEGER
                 )"""
             )
-            
+
             c.executemany(
                 "INSERT INTO groups_info(姓名, 小组名字, 小组ID, 日期, 小组总人数, 小组当日帖子数) VALUES(?,?,?,?,?,?)",
                 group_info,
             )
-            
+
             conn.commit()
             conn.close()
             print(f"数据库操作成功，尝试次数: {attempt + 1}")
             return  # 成功则退出函数
-            
+
         except sqlite3.OperationalError as e:
             if "database is locked" in str(e):
                 if attempt < max_retries - 1:
                     # 指数退避 + 随机延迟
-                    delay = base_delay * (2 ** attempt) + random.uniform(0, 0.1)
-                    print(f"数据库被锁定，第{attempt + 1}次尝试失败，{delay:.2f}秒后重试...")
+                    delay = base_delay * (2**attempt) + random.uniform(0, 0.1)
+                    print(
+                        f"数据库被锁定，第{attempt + 1}次尝试失败，{delay:.2f}秒后重试..."
+                    )
                     time.sleep(delay)
                     continue
                 else:
@@ -274,10 +278,11 @@ def input_database(group_info, max_retries=5, base_delay=0.1):
         finally:
             # 确保连接被关闭
             try:
-                if 'conn' in locals():
+                if "conn" in locals():
                     conn.close()
             except:
                 pass
+
 
 def tk_input_database(group_info):
     """将爬取的tiktok数据写入数据库"""
@@ -335,6 +340,7 @@ def query_database(vauledate):
     t_dic = get_dic(query_result)
     return t_dic
 
+
 def query_database_tk(vauledate):
     """查询tk小组增长人数"""
     conn = sqlite3.connect(sqlilt_db)
@@ -351,6 +357,7 @@ def query_database_tk(vauledate):
     # print(346, t_dic)
     return t_dic
 
+
 def query_database2_tk(column_name, vauledate):
     """查询tiktok发帖数"""
     conn = sqlite3.connect(sqlilt_db)
@@ -365,6 +372,7 @@ def query_database2_tk(column_name, vauledate):
     query_result = c.fetchall()  # 当天最近一次的小组人数
     t_dic = get_dic(query_result)
     return t_dic
+
 
 def query_database2(vauledate):
     """查询小组发帖数"""
@@ -409,7 +417,9 @@ def get_upload_group_increase(ids, dic):
     return nums
 
 
-def update_time(sheet_name, sheet_id, timezone, sheet_range="E1", content_title="总人数"):
+def update_time(
+    sheet_name, sheet_id, timezone, sheet_range="E1", content_title="总人数"
+):
     """更新时间"""
     current_time = []
     upoad_current_time = []
@@ -433,7 +443,7 @@ def group_sort_tk(sheet_name, sheet_id, send_type=7):
     df = result[0]
     # print(df, 498)
     # 提取姓氏部分
-    df[0] = df[0].str.split('-').str[1].str[:-3]
+    df[0] = df[0].str.split("-").str[1].str[:-3]
 
     # 获取不同的人名
     unique_names = df[0].unique()
@@ -441,7 +451,9 @@ def group_sort_tk(sheet_name, sheet_id, send_type=7):
 
     name_count_dic = {}
     for name in unique_names:
-        total = pd.to_numeric(df[df[0].str.contains(name)][int(send_type)], errors='coerce').sum()
+        total = pd.to_numeric(
+            df[df[0].str.contains(name)][int(send_type)], errors="coerce"
+        ).sum()
         name_count_dic[name] = total
     print(name_count_dic)
 
@@ -449,6 +461,7 @@ def group_sort_tk(sheet_name, sheet_id, send_type=7):
     sorted_data = sorted(name_count_dic.items(), key=lambda x: x[1], reverse=True)
     top_num = sorted_data[:20]
     return top_num
+
 
 def group_sort(sheet_name, sheet_id):
     """小组来人排名"""
@@ -470,6 +483,7 @@ def skype_info(li):
         )
         content += result + "\n"
     return content
+
 
 def get_titok_post_info(group_ids):
     """获取小组当日帖子数和总帖子数,输出为列表"""
@@ -507,8 +521,9 @@ def get_titok_post_info(group_ids):
         likes_all.append(likes)
     return fans_all, follows_all, friends_all, likes_all
 
+
 def upload_tk_today(sheet_name, sheet_id, result_all):
-    '''上传抖音今日数据'''
+    """上传抖音今日数据"""
     upload_data_list = []
     # print('列表数组长度:', len(result_all[0]))
     for row in range(len(result_all[0])):
@@ -533,21 +548,49 @@ def upload_tk_today(sheet_name, sheet_id, result_all):
     upload_data(upload_data_list, "{}!D4:G".format(sheet_name), sheet_id)
     return upload_data_list
 
-def upload_tk_fri_fol_increase(sheet_name, sheet_id, ids):
-    '''上传每日增长的好友和关注数量'''
-    sheet_columns_followers = ['I', 'L', 'O', 'R', 'U', 'X', 
-                           'AA', 'AD', 'AG', 'AJ', 'AM', 
-                           'AP', 'AS', 'AV', 'AY', 'BB']
 
-    sheet_columns_friends = ['J', 'M', 'P', 'S', 'V', 'Y', 
-                             'AB', 'AE', 'AH', 'AK', 'AN', 
-                             'AQ', 'AT', 'AW', 'AZ', 'BC']
+def upload_tk_fri_fol_increase(sheet_name, sheet_id, ids):
+    """上传每日增长的好友和关注数量"""
+    sheet_columns_followers = [
+        "I",
+        "L",
+        "O",
+        "R",
+        "U",
+        "X",
+        "AA",
+        "AD",
+        "AG",
+        "AJ",
+        "AM",
+        "AP",
+        "AS",
+        "AV",
+        "AY",
+        "BB",
+    ]
+
+    sheet_columns_friends = [
+        "J",
+        "M",
+        "P",
+        "S",
+        "V",
+        "Y",
+        "AB",
+        "AE",
+        "AH",
+        "AK",
+        "AN",
+        "AQ",
+        "AT",
+        "AW",
+        "AZ",
+        "BC",
+    ]
 
     # 查询结果列表，这次不需要包含今天的结果，因为我们计算的是发帖数增长
-    dics = {
-        "关注数": sheet_columns_followers,
-        "好友数": sheet_columns_friends
-    }
+    dics = {"关注数": sheet_columns_followers, "好友数": sheet_columns_friends}
 
     # 获取前x天的小组发帖数并添加到列表中
     for i, table_col in dics.items():
@@ -558,34 +601,61 @@ def upload_tk_fri_fol_increase(sheet_name, sheet_id, ids):
 
         for j, _ in enumerate(query_results_posts):
             if j < len(query_results_posts) - 1:
-                query_result_data = count_group(query_results_posts[j], query_results_posts[j+1])
+                query_result_data = count_group(
+                    query_results_posts[j], query_results_posts[j + 1]
+                )
                 posts_increase = get_upload_group_increase(ids, query_result_data)
                 time.sleep(4)
-                upload_data(posts_increase, f"{sheet_name}!{table_col[j]}4:{table_col[j]}", sheet_id)
+                upload_data(
+                    posts_increase,
+                    f"{sheet_name}!{table_col[j]}4:{table_col[j]}",
+                    sheet_id,
+                )
+
 
 def upload_tk_fans_increase(sheet_name, sheet_id, ids):
-    '''上传每日增长的粉丝数量'''
-    sheet_columns = ['H', 'K', 'N', 'Q', 'T', 'W', 
-                     'Z', 'AC', 'AF', 'AI', 
-                     'AL', 'AO', 'AR', 'AU', 'AX', 'BA']
+    """上传每日增长的粉丝数量"""
+    sheet_columns = [
+        "H",
+        "K",
+        "N",
+        "Q",
+        "T",
+        "W",
+        "Z",
+        "AC",
+        "AF",
+        "AI",
+        "AL",
+        "AO",
+        "AR",
+        "AU",
+        "AX",
+        "BA",
+    ]
 
     # 查询结果列表，初始化包含今天的查询结果
     query_results = [query_database_tk("'now'")]
     # 获取前10天的小组人数并添加到列表中
-    for i in range(1, len(sheet_columns)+1):
+    for i in range(1, len(sheet_columns) + 1):
         query_result = query_database_tk(f"'now', '-{i} day'")
         query_results.append(query_result)  # 将结果插入列表的开头
 
     for i in range(1, len(query_results)):
         # 计算前一天与当前天的小组人数增长
-        query_result_data = count_group(query_results[i-1], query_results[i])
+        query_result_data = count_group(query_results[i - 1], query_results[i])
         increase = get_upload_group_increase(ids, query_result_data)
         # 上传数据到对应的列
         time.sleep(4)
-        upload_data(increase, f"{sheet_name}!{sheet_columns[i-1]}4:{sheet_columns[i-1]}", sheet_id)
+        upload_data(
+            increase,
+            f"{sheet_name}!{sheet_columns[i-1]}4:{sheet_columns[i-1]}",
+            sheet_id,
+        )
+
 
 def job_tk(sheet_id, sheet_name, sheet_range="B4:C"):
-    '''抖音数据处理'''
+    """抖音数据处理"""
     sheet_date = get_data(sheet_name, sheet_range, sheet_id)
     result = sheet_date[0]
     ids = get_group_id(result, 1)
@@ -593,19 +663,20 @@ def job_tk(sheet_id, sheet_name, sheet_range="B4:C"):
     result_all = list(get_titok_post_info(ids))
     print(result_all, 504)
 
-    upload_data_list = upload_tk_today(sheet_name, sheet_id, result_all) # 上传今日数据
-    print('今日数据已更新')
+    upload_data_list = upload_tk_today(sheet_name, sheet_id, result_all)  # 上传今日数据
+    print("今日数据已更新")
 
     # 插入数据库,姓名，ID，粉丝数，关注数，好友数，点赞数
     db_data = tk_db_insert(result, tday_, upload_data_list)
     tk_input_database(db_data)
 
     upload_tk_fans_increase(sheet_name, sheet_id, ids)
-    print('粉丝数据已更新')
+    print("粉丝数据已更新")
     upload_tk_fri_fol_increase(sheet_name, sheet_id, ids)
-    print('好友和关注数据已更新')
+    print("好友和关注数据已更新")
 
-    update_time(sheet_name, sheet_id, "D1", "粉丝总数") # 更新表格时间
+    update_time(sheet_name, sheet_id, "D1", "粉丝总数")  # 更新表格时间
+
 
 def tk_db_insert(group_info, tday, datas):
     """插入数据库的数据"""
@@ -622,88 +693,87 @@ def tk_db_insert(group_info, tday, datas):
         infos.append(group_row)
     return infos
 
+
 def process_fb_chunk(sheet_id, sheet_name, ids_chunk, result_chunk):
     """处理Facebook数据的子集"""
     # 获取帖子和成员数据
     result_post_mem_all = getposts(ids_chunk)
     result_posts = result_post_mem_all[0]
     result_members = result_post_mem_all[1]
-    
+
     # 准备数据库插入数据
     db_data = db_insert(result_chunk, tday_, result_members, result_posts)
-    
+
     # 返回处理结果
-    return {
-        'posts': result_posts,
-        'members': result_members,
-        'db_data': db_data
-    }
+    return {"posts": result_posts, "members": result_members, "db_data": db_data}
+
 
 def job_fb(sheet_id, sheet_name, sheet_range="B4:D", chunk_size=4000):
     sheet_date = get_data(sheet_name, sheet_range, sheet_id)
     result = sheet_date[0]
     ids = get_group_id(result)
-    
+
     # 检查行数
     row_count = result.shape[0]
     if row_count > chunk_size:
         print(f"行数超过{chunk_size}（当前为{row_count}），使用多线程处理")
-        
+
         # 计算需要的线程数
         num_chunks = (row_count + chunk_size - 1) // chunk_size  # 向上取整
-        
+
         # 创建线程和结果容器
         threads = []
         results = [None] * num_chunks
-        
+
         # 分割数据并创建线程
         for i in range(num_chunks):
             start_idx = i * chunk_size
             end_idx = min((i + 1) * chunk_size, row_count)
-            
+
             # 创建DataFrame子集
             result_chunk = result.iloc[start_idx:end_idx].copy()
             ids_chunk = ids[start_idx:end_idx]
-            
+
             # 创建并启动线程
             thread = threading.Thread(
-                target=lambda idx=i, r_chunk=result_chunk, i_chunk=ids_chunk: results.__setitem__(idx, process_fb_chunk(sheet_id, sheet_name, i_chunk, r_chunk))
+                target=lambda idx=i, r_chunk=result_chunk, i_chunk=ids_chunk: results.__setitem__(
+                    idx, process_fb_chunk(sheet_id, sheet_name, i_chunk, r_chunk)
+                )
             )
             threads.append(thread)
             thread.start()
             print(f"启动线程 {i+1}/{num_chunks}, 处理行 {start_idx+1}-{end_idx}")
-        
+
         # 等待所有线程完成
         for i, thread in enumerate(threads):
             thread.join()
             print(f"线程 {i+1}/{num_chunks} 已完成")
-        
+
         # 合并结果
         all_posts = []
         all_members = []
         all_db_data = []
-        
+
         for result in results:
-            all_posts.extend(result['posts'])
-            all_members.extend(result['members'])
-            all_db_data.extend(result['db_data'])
-        
+            all_posts.extend(result["posts"])
+            all_members.extend(result["members"])
+            all_db_data.extend(result["db_data"])
+
         # 插入数据库
         input_database(all_db_data)
         # 上传成员数据
         upload_data(all_members, "{}!E4:E".format(sheet_name), sheet_id)
-        
+
     else:
         # 原有的单线程处理逻辑
         result_post_mem_all = getposts(ids)
         result_posts = result_post_mem_all[0]
         result_members = result_post_mem_all[1]
-        
+
         db_data = db_insert(result, tday_, result_members, result_posts)
         input_database(db_data)
         upload_data(result_members, "{}!E4:E".format(sheet_name), sheet_id)
 
-    
     # 查询结果列表，初始化包含今天的查询结果
     query_results = [query_database("'now'")]
 
@@ -716,7 +786,7 @@ def job_fb(sheet_id, sheet_name, sheet_range="B4:D", chunk_size=4000):
     datas = []
     for i in range(1, len(query_results)):
         # 计算前一天与当前天的小组人数增长
-        query_result_data = count_group(query_results[i-1], query_results[i])
+        query_result_data = count_group(query_results[i - 1], query_results[i])
         increase = get_upload_group_increase(ids, query_result_data)
         datas.append(increase)
 
@@ -757,7 +827,13 @@ def get_sheets(sheet_id, sheet_range="A2:C"):
 @click.option("-s", "--sheet_id", help="更新的表格 ID")
 @click.option("-p", "--platform", help="平台名称")
 @click.option("-r", "--sheet_range", default="A2:C", help="sheet范围")
-@click.option("-c", "--chunk_size", default=4000, type=int, help="多线程处理时每个线程处理的最大行数")
+@click.option(
+    "-c",
+    "--chunk_size",
+    default=4000,
+    type=int,
+    help="多线程处理时每个线程处理的最大行数",
+)
 @click.option("-t", "--timezone", default="Europe/Berlin", help="时区")
 def main(sheet_id, platform, sheet_range, chunk_size, timezone):
     global tday_
@@ -772,6 +848,7 @@ def main(sheet_id, platform, sheet_range, chunk_size, timezone):
         sheets_name = get_sheets(sheet_id)
         for sheet in sheets_name[0][0]:
             job_tk(sheet_id, sheet, "B4:C")
+
 
 if __name__ == "__main__":
     main()

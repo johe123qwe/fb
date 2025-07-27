@@ -29,12 +29,13 @@ proxies = {
     "http": "http://144.76.75.25:4444",
 }
 
+
 def request(url):
     try:
         print(41, len(cookies.keys()), url)
         cookie = random.sample(list(cookies.keys()), 1)[0]
         headers["Cookie"] = cookie
-        print(cookies[headers['Cookie']], cookie)
+        print(cookies[headers["Cookie"]], cookie)
         result = requests.get(url, headers=headers, timeout=10)
         while result is not None:
             return result, cookie
@@ -43,10 +44,11 @@ def request(url):
     except requests.exceptions.ConnectionError:
         pass
 
+
 def request_tk(url):
     try:
 
-        result = requests.get(url, headers={'accept': 'application/json'}, timeout=10)
+        result = requests.get(url, headers={"accept": "application/json"}, timeout=10)
         # print(result.json(), 78)
         while result is not None:
             return result, 0
@@ -55,44 +57,45 @@ def request_tk(url):
     except requests.exceptions.ConnectionError:
         pass
 
+
 def get_fb_posts_local(group_id, max_retries=5, retry_count=0):
     """从本地获取 facebook 小组信息"""
     if retry_count >= max_retries:
         print(f"达到最大重试次数 {max_retries}，放弃获取 {group_id}")
         return "max_retries_reached", "error"
-    
+
     try:
-        response_result = request(
-            f"https://www.facebook.com/groups/{group_id}/about"
-        )
-        
+        response_result = request(f"https://www.facebook.com/groups/{group_id}/about")
+
         if response_result is None:
             print(f"再次获取 {group_id} 数据")
             time.sleep(5)
             return get_fb_posts_local(group_id, max_retries, retry_count + 1)
-            
+
         response, cookie_index = response_result
-        
+
         if response.status_code != 200:
             print(f"状态码错误: {response.status_code}, 重试获取 {group_id}")
             time.sleep(5)
             return get_fb_posts_local(group_id, max_retries, retry_count + 1)
-        
+
         # with open("fb_posts.txt", "w", encoding="utf-8") as f:
         #     f.write(f"{group_id} {response.status_code}\n")
         #     f.write(response.text)
 
-        if r'\u5185\u5bb9\u6682\u65f6\u65e0\u6cd5\u663e\u793a' in response.text \
-            or r'\u76ee\u524d\u7121\u6cd5\u67e5\u770b\u6b64' in response.text:
+        if (
+            r"\u5185\u5bb9\u6682\u65f6\u65e0\u6cd5\u663e\u793a" in response.text
+            or r"\u76ee\u524d\u7121\u6cd5\u67e5\u770b\u6b64" in response.text
+        ):
             print(f"内容暂时无法显示: {group_id}")
-            return 'iderror', 'iderror'
+            return "iderror", "iderror"
 
         result_last_day = re.search(
             r'"number_of_posts_in_last_day":(.*?),', response.text
-        ) 
+        )
         result_members = re.search(
             r'"group_total_members_info_text":"(?:.*?)(\d+(?:,\d+)*)\s*(?:\\u4eba|\\u4f4d\\u6210\\u54e1)',
-            response.text
+            response.text,
         )
         print(97, group_id, result_last_day, result_members)
         if result_last_day and result_members:
@@ -111,11 +114,12 @@ def get_fb_posts_local(group_id, max_retries=5, retry_count=0):
                 return "toomany", bad_fb
             else:
                 return "error", "error"
-                
+
     except Exception as e:
         print(f"处理过程异常: {e}, 重试获取 {group_id}")
         time.sleep(5)
         return get_fb_posts_local(group_id, max_retries, retry_count + 1)
+
 
 def get_fbpage(page_id):
     """从本地获取 facebook 专页的信息
@@ -127,28 +131,34 @@ def get_fbpage(page_id):
     while response.status_code == 200:
         try:
             result_dianzan = re.search(
-                r'"text":"([0-9,.]+(?:\\u00a0\\u4e07)?)\s?\\u6b21\\u8d5e"\}', response.text
+                r'"text":"([0-9,.]+(?:\\u00a0\\u4e07)?)\s?\\u6b21\\u8d5e"\}',
+                response.text,
             )
             if not result_dianzan:
                 raise ValueError("无法匹配点赞数的正则表达式结果")
             result_members = re.search(
-                r'"text":"([0-9,.]+(?:\\u00a0\\u4e07)?)\s?\\u4f4d\\u7c89\\u4e1d"\}', response.text
+                r'"text":"([0-9,.]+(?:\\u00a0\\u4e07)?)\s?\\u4f4d\\u7c89\\u4e1d"\}',
+                response.text,
             )
             if not result_members:
                 raise ValueError("无法匹配粉丝数的正则表达式结果")
-            dianzan = result_dianzan.group(1).replace(r"\u00a0", "").replace(r"\u4e07", "万")
-            members = result_members.group(1).replace(r"\u00a0", "").replace(r"\u4e07", "万")
-            if '万' in dianzan:
+            dianzan = (
+                result_dianzan.group(1).replace(r"\u00a0", "").replace(r"\u4e07", "万")
+            )
+            members = (
+                result_members.group(1).replace(r"\u00a0", "").replace(r"\u4e07", "万")
+            )
+            if "万" in dianzan:
                 dianzan = int(float(dianzan[:-1]) * 10000)
-            if '万' in members:
+            if "万" in members:
                 members = int(float(members[:-1]) * 10000)
             print(dianzan, members)
             return dianzan, members
-        
+
         except ValueError as ve:
             print(f"值错误: {ve}", 152)
             return "error", "error"
-        
+
         except Exception as e:
             print(f"未知错误: {e}", 159)
             bad_fb = cookies[response_result[1]]
@@ -163,9 +173,12 @@ def get_fbpage(page_id):
 
 
 def get_tiktok(id):
-    """获取tiktok数据
-    """
-    response_result = request_tk("https://api.douyin.wtf/api/tiktok/web/fetch_user_profile?uniqueId={}".format(id.strip()))
+    """获取tiktok数据"""
+    response_result = request_tk(
+        "https://api.douyin.wtf/api/tiktok/web/fetch_user_profile?uniqueId={}".format(
+            id.strip()
+        )
+    )
     response = response_result[0]
 
     while response.status_code == 200:
