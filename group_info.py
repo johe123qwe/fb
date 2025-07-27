@@ -18,9 +18,6 @@ from googleapiclient.discovery import build
 import group_info_config
 
 
-# 间隔时间
-time_a = 9
-time_b = 13
 #### 配置区域end ####
 groupid = group_info_config.GROUP_ID
 
@@ -615,7 +612,6 @@ def tk_db_insert(group_info, tday, datas):
     infos = []
     for row in range(0, group_info.shape[0]):
         group_row = []
-        # print(96, value.iat[row, 2])
         group_row.append(group_info.iat[row, 0]),
         group_row.append(group_info.iat[row, 1]),
         group_row.append(tday),
@@ -624,7 +620,6 @@ def tk_db_insert(group_info, tday, datas):
         group_row.append(datas[row][2]),
         group_row.append(datas[row][3]),
         infos.append(group_row)
-    # print(infos, 531)
     return infos
 
 def process_fb_chunk(sheet_id, sheet_name, ids_chunk, result_chunk):
@@ -689,7 +684,6 @@ def job_fb(sheet_id, sheet_name, sheet_range="B4:D", chunk_size=4000):
         all_db_data = []
         
         for result in results:
-            print(771, result['posts'], result['members'], result['db_data'])
             all_posts.extend(result['posts'])
             all_members.extend(result['members'])
             all_db_data.extend(result['db_data'])
@@ -707,7 +701,6 @@ def job_fb(sheet_id, sheet_name, sheet_range="B4:D", chunk_size=4000):
         
         db_data = db_insert(result, tday_, result_members, result_posts)
         input_database(db_data)
-
         upload_data(result_members, "{}!E4:E".format(sheet_name), sheet_id)
 
     
