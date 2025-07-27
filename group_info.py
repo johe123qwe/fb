@@ -438,20 +438,6 @@ def update_time(sheet_name, sheet_id, timezone, sheet_range="E1", content_title=
     ).execute()
 
 
-def send_sk(info, SK_ID):
-    """发送 skype 信息,
-    rich=True 为富文本，可以@用户，但是开启rich后
-    使用的表情不能为skype自带的表情，可以使用windows或mac系统
-    自带的表情。"""
-    try:
-        sk = Skype(sk_username, sk_password)
-        ch = sk.chats[SK_ID]  # 给小组发信息
-        ch.sendMsg(info, rich=False)
-        return 1
-    except Exception as e:
-        return 0
-
-
 def group_sort_tk(sheet_name, sheet_id, send_type=7):
     """小组来人排名"""
     result = get_data(sheet_name, "B4:J", sheet_id)
