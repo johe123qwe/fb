@@ -182,3 +182,4 @@ sqlite3/*.bak
 group_info_config copy.py
 group_info_config_all.py
 group_info_config.py
+note.md
