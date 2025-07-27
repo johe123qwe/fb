@@ -47,10 +47,6 @@ creds = service_account.Credentials.from_service_account_file(
 service = build("sheets", "v4", credentials=creds)
 sheet = service.spreadsheets()
 
-# 更新的表格 ID
-# update_sheet_id = "1kexU2LSwcIFW6WPiIuJYKM3MqSu11dfKjEWUStJbMzY" # 技术部专页
-# update_sheet_id = "152FvJNxGyjfH9EHjszPIxtSHcHgj-9eRk2M2QH2ofr8" # 技术部专页
-# update_sheet_id = "1eDAjCkU1iZwnC6Cjw1VHJ66MH0olLjKls3GtVeK2H14"  # 测试
 
 sqlilt_db = os.path.join(os.path.dirname(__file__), "de_post_group.db")
 
