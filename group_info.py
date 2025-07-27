@@ -13,15 +13,10 @@ from zoneinfo import ZoneInfo
 import gspread
 import os
 import getfb_posts
-# from facebook_scraper import *
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from skpy import Skype
 import group_info_config
 
-
-
-#### 配置区域start ####
 
 # 间隔时间
 time_a = 9
@@ -170,9 +165,6 @@ def get_tk_posts(group_id):
         result = getfb_posts.get_tiktok(group_id)
     return result
 
-# 写一个读取文件函数
-def read_file():
-    '''读取一个文件文件'''
 
 def get_fb_posts(group_id):
     result = getfb_posts.get_fb_posts_local(group_id)
