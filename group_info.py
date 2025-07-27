@@ -712,7 +712,7 @@ def process_fb_chunk(sheet_id, sheet_name, ids_chunk, result_chunk):
         'db_data': db_data
     }
 
-def job_fb(sheet_id, sheet_name, timezone, sheet_range="B4:D", chunk_size=4000):
+def job_fb(sheet_id, sheet_name, sheet_range="B4:D", chunk_size=4000):
     sheet_date = get_data(sheet_name, sheet_range, sheet_id)
     result = sheet_date[0]
     ids = get_group_id(result)
@@ -841,7 +841,7 @@ def main(sheet_id, platform, sheet_range, chunk_size, timezone):
     if platform == "fb":
         sheets_name = get_sheets(sheet_id, sheet_range)
         for sheet in sheets_name[0][0]:
-            job_fb(sheet_id, sheet, chunk_size=chunk_size, timezone=timezone)
+            job_fb(sheet_id, sheet, chunk_size=chunk_size)
             update_time(sheet, sheet_id, timezone)
     elif platform == "tiktok":
         sheets_name = get_sheets(sheet_id)
