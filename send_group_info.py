@@ -161,7 +161,7 @@ def get_data(sheet_id, platform, send_type):
 @click.command()
 @click.option("-s", "--groupid", help="更新的表格 ID")
 @click.option("-p", "--platform", help="平台名称")
-@click.option("-S", "--sendtype", default="7", help="发送的类型")
+@click.option("-S", "--sendtype", default="fb", help="发送的类型")
 def main(groupid, platform, sendtype):
     get_data(groupid, platform, sendtype)
 
