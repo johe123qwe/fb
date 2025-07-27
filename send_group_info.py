@@ -1,5 +1,4 @@
 import warnings
-
 warnings.simplefilter(action="ignore", category=FutureWarning)
 import random
 from datetime import datetime
@@ -10,7 +9,6 @@ import requests
 import group_info_config
 
 
-# Skype 账号、密码、小组ID
 groupid = group_info_config.GROUP_ID
 
 tday = datetime.now()  # 当前时间
@@ -82,16 +80,6 @@ def skype_info_tk(title, li, sheet_id, content):
         content += result + "\n"
     return content
 
-
-def skype_info2(li):
-    """生成要发送的信息2"""
-    content = "自建小组 {} 新增人数最少的小组\n".format(tday__)
-    for index in range(len(li)):
-        result = "{}{} [{}](https://www.facebook.com/groups/{}) 新增 {}".format(
-            "🚀", li[index][0], li[index][1].strip(), li[index][2], li[index][4]
-        )
-        content += result + "\n"
-    return content
 
 
 def send_info(title, sheet_name, ids, sheet_id, platform, send_type):
