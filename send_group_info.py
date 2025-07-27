@@ -159,7 +159,7 @@ def get_data(sheet_id, platform, send_type):
     num_rows, num_cols = df.shape
     name_id = (
         {}
-    )  # {'外邦5000以上小组': ['19:7167c78188064c74bd9d5d9a5e782cd0@thread.skype', '123'], '外邦发展中小组': ['19:373648266d8848a2b85ed9f36a163cf7@thread.skype']}
+    )
     for i in range(num_rows):
         id_list = []
         for j in range(1, num_cols):
@@ -168,7 +168,6 @@ def get_data(sheet_id, platform, send_type):
                 id_list.append(value)
                 name_id[df.iloc[i, 0]] = id_list
 
-    # sheets = name_id.keys()
     all_data = []
     for sheet in result[0][0]:
         result = send_info(sheet, sheet, name_id.get(sheet), sheet_id, platform, send_type)
@@ -181,16 +180,6 @@ def get_data(sheet_id, platform, send_type):
 @click.option("-S", "--sendtype", default="7", help="发送的类型")
 def main(groupid, platform, sendtype):
     data = get_data(groupid, platform, sendtype)
-    """发送来人最少的小组
-    sorted_list = sorted(data, key=lambda x: int(x[4]))
-    nlist = sorted_list[0:5]
-    for index in range(5, len(sorted_list)):
-        if sorted_list[5][4] == sorted_list[index - 1][4]:
-            nlist.append(sorted_list[index])
-    nlist.reverse()
-    skinfo = skype_info2(nlist) # 从所有数据中找到来人最少的小组
-    send_sk(skinfo, groupid) 
-    """
 
 
 if __name__ == "__main__":
