@@ -163,7 +163,7 @@ def get_data(sheet_id, platform, send_type):
 @click.option("-p", "--platform", help="平台名称")
 @click.option("-S", "--sendtype", default="7", help="发送的类型")
 def main(groupid, platform, sendtype):
-    data = get_data(groupid, platform, sendtype)
+    get_data(groupid, platform, sendtype)
 
 
 if __name__ == "__main__":
