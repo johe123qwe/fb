@@ -27,9 +27,6 @@ import group_info_config
 time_a = 9
 time_b = 13
 #### 配置区域end ####
-# Skype 账号、密码
-sk_username = group_info_config.SK_USERNAME
-sk_password = group_info_config.SK_PASSWORD
 groupid = group_info_config.GROUP_ID
 
 # 读取谷歌表格， token.json 获取为 google sheet API
@@ -159,25 +156,9 @@ def get_group_id(value, column=2):
     """获取小组ID"""
     group_id = []
     for row in range(0, value.shape[0]):
-        # print(96, value.iat[row, column])
         group_id.append(value.iat[row, column])
     return group_id
 
-
-def get_fb_group_member(group_id, cookie):
-    """获取小组人数"""
-    #  cookies='/Users/xiaoyu/develop/pyscript/de_post/cookie_files/facebook_cookiesde02.txt'
-    try:
-        ginfo = get_group_info(
-            group_id,
-            cookies=cookie,
-        )
-        return ginfo["members"]
-    except Exception as e:
-        print(144, e)
-        return -1
-
-        
 def get_tk_posts(group_id):
     '''获取抖音数据
     粉丝、关注、好友、点赞'''

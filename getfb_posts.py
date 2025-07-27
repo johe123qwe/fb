@@ -2,18 +2,10 @@ import re
 import time
 import random
 import group_info_config
-
 import requests
 
-"""
-20240418 增加获取抖音的数据
-20241110 修复获取专页的数据
-20241204 修复专页被封导致程序中止
-20241209 修复专页不存在时的报错
-"""
 
 cookies = group_info_config.COOKIES
-
 
 # 设置请求头
 headers = {
@@ -172,10 +164,7 @@ def get_fbpage(page_id):
 
 def get_tiktok(id):
     """获取tiktok数据
-    stats":{"followerCount好友数":2667,"followingCount关注数":7604
-    token: 0JgZVFZgnX055TlQjTa8yEJu8BoBzYycgJBD/Cv3tkp64mtZWvsq3QK0DA==
     """
-    print(id, 146)
     response_result = request_tk("https://api.douyin.wtf/api/tiktok/web/fetch_user_profile?uniqueId={}".format(id.strip()))
     response = response_result[0]
 
