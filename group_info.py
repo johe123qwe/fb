@@ -19,16 +19,6 @@ from googleapiclient.discovery import build
 from skpy import Skype
 import group_info_config
 
-'''安装
-pip install -q -U google-generativeai
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-pip install gspread click
-'''
-
-'''更新日志
-20250318 改为批量上传数据
-20240419 增加获取抖音的数据
-'''
 
 
 #### 配置区域start ####
@@ -216,19 +206,6 @@ def get_fb_posts(group_id):
         else:
             break
     return result[0], result[1]
-    # api = CrawlingAPI({ 'token': 'EHNKnzONlTCNVdD6owxB9Q' })
-    # response = api.get('https://www.facebook.com/groups/{}/about'.format(group_id))
-    # while response['status_code'] == 200:
-    #     text = response['body'].decode("utf-8")
-    #     result = re.search(r'"number_of_posts_in_last_day":(.*?),', text)
-    #     if result:
-    #         return result.group(1)
-    #     else:
-    #         return 0
-    # else:
-    #     time.sleep(3)
-    #     get_fb_posts(group_id)
-
 
 def getposts(group_ids):
     """获取小组当日帖子数和总帖子数,输出为列表"""
@@ -355,7 +332,6 @@ def db_insert(group_info, tday, members, posts):
     infos = []
     for row in range(0, group_info.shape[0]):
         group_row = []
-        # print(96, value.iat[row, 2])
         group_row.append(group_info.iat[row, 0]),
         group_row.append(group_info.iat[row, 1]),
         group_row.append(group_info.iat[row, 2]),
@@ -387,7 +363,6 @@ def query_database(vauledate):
 
     query_result = c.fetchall()  # 当天最近一次的小组人数
     t_dic = get_dic(query_result)
-    # print(346, t_dic)
     return t_dic
 
 def query_database_tk(vauledate):
@@ -447,8 +422,6 @@ def count_group(t_dic, b_dic):
             str(t_dic.get(key)).replace(",", "").isdigit()
             and str(b_dic.get(key)).replace(",", "").isdigit()
         ):
-            # print('当天小组人数', t_dic.get(key), key)
-            # print('前一天小组人数', b_dic.get(key), key)
             increase = int(str(t_dic.get(key)).replace(",", "")) - int(
                 str(b_dic.get(key)).replace(",", "")
             )
@@ -534,7 +507,7 @@ def group_sort(sheet_name, sheet_id):
 
 
 def skype_info(li):
-    content = "德语自建小组 {} 报告\n".format(tday__)
+    content = "自建小组 {} 报告\n".format(tday__)
     for index in range(len(li)):
         result = "{}{} {} 新增 {}".format(
             random.sample(emoji_list, 1)[0], li[index][0], li[index][1], li[index][3]

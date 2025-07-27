@@ -354,7 +354,7 @@ def group_sort(sheet_name, sheet_id):
 
 
 def skype_info(li):
-    content = "德语自建小组 {} 报告\n".format(tday__)
+    content = "自建小组 {} 报告\n".format(tday__)
     for index in range(len(li)):
         result = "{}{} {} 新增 {}".format(
             random.sample(emoji_list, 1)[0], li[index][0], li[index][1], li[index][3]
