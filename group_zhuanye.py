@@ -10,26 +10,16 @@ import random
 import sqlite3
 import time
 
-
 import getfb_posts
 from facebook_scraper import *
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from skpy import Skype
 
-# pip install facebook-scraper
-'''
-20241110 添加乌克兰语专页数据'''
-
-#### 配置区域start ####
 
 # 间隔时间
 time_a = 9
 time_b = 13
 #### 配置区域end ####
-# Skype 账号、密码
-sk_username = group_info_config.SK_USERNAME
-sk_password = group_info_config.SK_PASSWORD
 groupid = group_info_config.GROUP_ID
 
 # 读取谷歌表格， token.json 获取为 google sheet API
@@ -325,20 +315,6 @@ def update_time(sheet_name, update_sheet_id):
         valueInputOption="USER_ENTERED",
         body=body6,
     ).execute()
-
-
-def send_sk(info, SK_ID):
-    """发送 skype 信息,
-    rich=True 为富文本，可以@用户，但是开启rich后
-    使用的表情不能为skype自带的表情，可以使用windows或mac系统
-    自带的表情。"""
-    try:
-        sk = Skype(sk_username, sk_password)
-        ch = sk.chats[SK_ID]  # 给小组发信息
-        ch.sendMsg(info, rich=False)
-        return 1
-    except Exception as e:
-        return 0
 
 
 def group_sort(sheet_name, sheet_id):

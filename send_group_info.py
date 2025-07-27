@@ -20,8 +20,6 @@ import group_info_config
 '''
 
 # Skype 账号、密码、小组ID
-sk_username = group_info_config.SK_USERNAME
-sk_password = group_info_config.SK_PASSWORD
 groupid = group_info_config.GROUP_ID
 
 tday = datetime.now()  # 当前时间
@@ -46,7 +44,7 @@ def remove_specific_emojis(text, emoji_list):
 
 def send_teams(id, message):
     """发送消息
-    19:f7a3617cf25a4558bb4eefd53e05a2b4@thread.skype"""
+    19:f7a3617cf25a4558bb4eexxxxxx@thread.skype"""
     url = "https://teamsapiwvqtegdpe.1010822.xyz/api/send-by-convid"
     headers = {"accept": "application/json", "Content-Type": "application/json"}
     print("发送消息内容：", message)
@@ -63,19 +61,6 @@ def send_teams(id, message):
     else:
         print("请求失败，状态码:", response.status_code)
         return 0
-
-# def send_sk(info, SK_ID):
-#     """发送 skype 信息,
-#     rich=True 为富文本，可以@用户，但是开启rich后
-#     使用的表情不能为skype自带的表情，可以使用windows或mac系统
-#     自带的表情。"""
-#     try:
-#         sk = Skype(sk_username, sk_password)
-#         ch = sk.chats[SK_ID]  # 给小组发信息
-#         ch.sendMsg(info, rich=True)
-#         return 1
-#     except Exception as e:
-#         return 0
 
 
 def skype_info(title, li, sheet_id, num=4):
@@ -135,7 +120,6 @@ def send_info(title, sheet_name, ids, sheet_id, platform, send_type):
                 content = "关注"
             skinfo = skype_info_tk(title, ten_group, sheet_id, content)
             for id in ids:
-                # print(skinfo)
                 send_teams(id, skinfo)
     return ten_group[1]
 

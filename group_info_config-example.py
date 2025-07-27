@@ -1,6 +1,3 @@
-SK_USERNAME = "xxxxxxxx@outlook.com"
-SK_PASSWORD = "xxxxxxxx"
-
 # 获取 skype 小组 id, 如：19:57d210ee37de4ea4a5df8da5bxxxxx@thread.skype
 GROUP_ID = "19:xxxxxxxxxxxxxx@thread.skype"
 
