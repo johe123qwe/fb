@@ -198,54 +198,7 @@ def get_fb_group_member2(group_id):
     except Exception as e:
         print(155, e)
         return -1
-
-
-def getmembers(group_ids):
-    """获取小组人数,输出为列表"""
-    members = []
-    for id in group_ids:
-        row = []
-        if id != None:
-            nums = get_fb_group_member(id, "./cookie_files/facebook_cookiesde02.txt")
-            try_times = 0
-            while nums == -1:
-                print("stop10 {}".format(id))
-                try_times += 1
-                time.sleep(10)
-                if 5 >= try_times > 1:
-                    nums = get_fb_group_member2(id)
-                elif 7 >= try_times > 5:
-                    nums = get_fb_group_member(
-                        id, "./cookie_files/facebook_cookiesen02.txt"
-                    )
-                elif 8 >= try_times > 7:
-                    nums = get_fb_group_member(
-                        id, "./cookie_files/facebook_cookiesen03.txt"
-                    )
-                elif try_times > 8:
-                    nums = -1
-            else:
-                print("小组", nums, id)
-                row.append(nums)
-                time.sleep(5)
-        elif id == None:
-            row.append(None)
-        members.append(row)
-    return members
-
-
-def send_telegram(msg):
-    import telegram
-
-    tel_group_id = "175568461"
-    token = "783640552:AAGykkJBhYGfRD_Qj8LKXGECuX9hkFLsEXc"
-
-    bot = telegram.Bot(token)
-    try:
-        bot.send_message(chat_id=tel_group_id, text=msg)
-    except Exception as e:
-        logger.error("Telegram sends information failed {} {}".format(msg, e))
-
+        
 def get_tk_posts(group_id):
     '''获取抖音数据
     粉丝、关注、好友、点赞'''
@@ -272,7 +225,6 @@ def get_fb_posts(group_id):
             print(group_id, "发帖数", result)
             time.sleep(4)
         else:
-            # send_telegram("小组 {} 今日发帖数获取失败, {}".format(group_id, result[1]))
             break
     return result[0], result[1]
     # api = CrawlingAPI({ 'token': 'EHNKnzONlTCNVdD6owxB9Q' })

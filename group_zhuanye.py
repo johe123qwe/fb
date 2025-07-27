@@ -157,53 +157,6 @@ def get_fb_group_member2(group_id):
         return -1
 
 
-def getmembers(group_ids):
-    """获取小组人数,输出为列表"""
-    members = []
-    for id in group_ids:
-        row = []
-        if id != None:
-            nums = get_fb_group_member(id, "./cookie_files/facebook_cookiesde02.txt")
-            try_times = 0
-            while nums == -1:
-                print("stop10 {}".format(id))
-                try_times += 1
-                time.sleep(10)
-                if 5 >= try_times > 1:
-                    nums = get_fb_group_member2(id)
-                elif 7 >= try_times > 5:
-                    nums = get_fb_group_member(
-                        id, "./cookie_files/facebook_cookiesen02.txt"
-                    )
-                elif 8 >= try_times > 7:
-                    nums = get_fb_group_member(
-                        id, "./cookie_files/facebook_cookiesen03.txt"
-                    )
-                elif try_times > 8:
-                    nums = -1
-            else:
-                print("小组", nums, id)
-                row.append(nums)
-                time.sleep(2)
-        elif id == None:
-            row.append(None)
-        members.append(row)
-    return members
-
-'''
-def send_telegram(msg):
-    import telegram
-
-    tel_group_id = "175568461"
-    token = "783640552:AAGykkJBhYGfRD_Qj8LKXGECuX9hkFLsEXc"
-
-    bot = telegram.Bot(token)
-    try:
-        bot.send_message(chat_id=tel_group_id, text=msg)
-    except Exception as e:
-        logger.error("telegram 发送信息失败 {} {}".format(msg, e))
-'''
-
 def get_fb_posts(group_id):
     result = getfb_posts.get_fbpage(group_id)
     trys = 0
@@ -212,7 +165,6 @@ def get_fb_posts(group_id):
         if trys < 5:
             result = getfb_posts.get_fbpage(group_id)
         else:
-            # send_telegram("facebook 爬取帖子数失败 {}, {}".format(group_id, result[1]))
             break
     return result[0], result[1]
     # api = CrawlingAPI({ 'token': 'EHNKnzONlTCNVdD6owxB9Q' })
@@ -415,7 +367,6 @@ def job(sheet_id, sheet_name):
     sheet_date = get_data(sheet_name, "A4:D", sheet_id)
     result = sheet_date[0]
     ids = get_group_id(result)
-    # result_members = getmembers(ids)
     result_post_mem_all = getposts(ids)
     result_posts = result_post_mem_all[0]
     result_members = result_post_mem_all[1]
