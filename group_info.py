@@ -59,7 +59,7 @@ sheet = service.spreadsheets()
 
 
 
-sqlilt_db = os.path.join(os.path.dirname(__file__), "sqlite3", "de_post_group.db")
+sqlilt_db = os.path.join(os.path.dirname(__file__), "sqlite3", "infos.db")
 
 tday = datetime.now()  # 当前时间
 # tday_ = tday.strftime("%Y-%m-%d %H:%M:%S")  # 当前日期时间
