@@ -187,17 +187,6 @@ def get_fb_group_member(group_id, cookie):
         print(144, e)
         return -1
 
-
-def get_fb_group_member2(group_id):
-    """获取小组人数, 不使用 cookie"""
-    try:
-        ginfo = get_group_info(
-            group_id,
-        )
-        return ginfo["members"]
-    except Exception as e:
-        print(155, e)
-        return -1
         
 def get_tk_posts(group_id):
     '''获取抖音数据
